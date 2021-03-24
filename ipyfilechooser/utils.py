@@ -5,7 +5,13 @@ import string
 import sys
 
 
-def get_subpaths(path):
+def strip_top_level(path, top_folder=''):
+    """Strip top level path from path."""
+    to_strip = os.path.dirname(top_folder)
+    return path[path.startswith(to_strip) and len(to_strip):]
+
+
+def get_subpaths(path, top_folder=''):
     """Walk a path and return a list of subpaths."""
     if os.path.isfile(path):
         path = os.path.dirname(path)
@@ -24,15 +30,24 @@ def get_subpaths(path):
         paths.extend(drives)
     except ValueError:
         pass
+
+    # Only return the paths up to and including top_folder
+    if top_folder:
+        paths = paths[:paths.index(top_folder) + 1]
+
+    print(paths)
     return paths
 
 
-def has_parent(path):
+def has_parent(path, top_folder=''):
     """Check if a path has a parent folder."""
-    return os.path.basename(path) != ''
+    if top_folder:
+        return os.path.abspath(path) != os.path.abspath(top_folder)
+    else:
+        return os.path.basename(path) != ''
 
 
-def match_item(item, filter_pattern):
+def match_item(item, filter_pattern=None):
     """Check if a string matches one or more fnmatch patterns."""
     if isinstance(filter_pattern, str):
         filter_pattern = [filter_pattern]
@@ -52,7 +67,8 @@ def get_dir_contents(
         show_hidden=False,
         prepend_icons=False,
         show_only_dirs=False,
-        filter_pattern=None):
+        filter_pattern=None,
+        top_folder=''):
     """Get directory contents."""
     files = list()
     dirs = list()
@@ -71,7 +87,7 @@ def get_dir_contents(
                         files.append(item)
                 else:
                     files.append(item)
-        if has_parent(path):
+        if has_parent(path, top_folder):
             dirs.insert(0, '..')
     if prepend_icons:
         return prepend_dir_icons(sorted(dirs)) + sorted(files)

@@ -1,7 +1,7 @@
 import os
 from ipywidgets import Dropdown, Text, Select, Button, HTML
 from ipywidgets import Layout, GridBox, HBox, VBox, ValueWidget
-from .utils import get_subpaths, get_dir_contents
+from .utils import get_subpaths, get_dir_contents, match_item
 
 
 class FileChooser(VBox, ValueWidget):
@@ -22,6 +22,7 @@ class FileChooser(VBox, ValueWidget):
             use_dir_icons=False,
             show_only_dirs=False,
             filter_pattern=None,
+            top_folder='',
             **kwargs):
         """Initialize FileChooser object."""
         self._default_path = path.rstrip(os.path.sep)
@@ -36,6 +37,7 @@ class FileChooser(VBox, ValueWidget):
         self._use_dir_icons = use_dir_icons
         self._show_only_dirs = show_only_dirs
         self._filter_pattern = filter_pattern
+        self._top_folder = top_folder.rstrip(os.path.sep)
 
         # Widgets
         self._pathlist = Dropdown(
@@ -178,7 +180,7 @@ class FileChooser(VBox, ValueWidget):
             filename = ''
 
         # Set form values
-        self._pathlist.options = get_subpaths(path)
+        self._pathlist.options = get_subpaths(path, top_folder=self._top_folder)
         self._pathlist.value = path
         self._filename.value = filename
 
@@ -188,7 +190,8 @@ class FileChooser(VBox, ValueWidget):
             show_hidden=self._show_hidden,
             prepend_icons=False,
             show_only_dirs=self._show_only_dirs,
-            filter_pattern=self._filter_pattern
+            filter_pattern=self._filter_pattern,
+            top_folder=self._top_folder
         )
 
         # file/folder display names
@@ -197,7 +200,8 @@ class FileChooser(VBox, ValueWidget):
             show_hidden=self._show_hidden,
             prepend_icons=self._use_dir_icons,
             show_only_dirs=self._show_only_dirs,
-            filter_pattern=self._filter_pattern
+            filter_pattern=self._filter_pattern,
+            top_folder=self._top_folder
         )
 
         # Dict to map real names to display names
@@ -247,6 +251,7 @@ class FileChooser(VBox, ValueWidget):
             check1 = filename in dircontent_real_names
             check2 = os.path.isdir(os.path.join(path, filename))
             check3 = False
+            check4 = False
 
             # Only check selected if selected is set
             if ((self._selected_path is not None) and
@@ -257,7 +262,11 @@ class FileChooser(VBox, ValueWidget):
                 )
                 check3 = os.path.join(path, filename) == selected
 
-            if (check1 and check2) or check3:
+            # Ensure only allowed extensions are used
+            if self._filter_pattern:
+                check4 = not match_item(filename, self._filter_pattern)
+
+            if (check1 and check2) or check3 or check4:
                 self._select.disabled = True
             else:
                 self._select.disabled = False
@@ -345,14 +354,18 @@ class FileChooser(VBox, ValueWidget):
             self._selected_filename
         )
 
+        # Strip displayed value if top_folder restriction is used
+        to_strip = os.path.abspath(self._top_folder)
+        label_sel = selected[selected.startswith(to_strip) and len(to_strip):]
+
         if os.path.isfile(selected):
             self._label.value = self._LBL_TEMPLATE.format(
-                selected,
+                label_sel,
                 'orange'
             )
         else:
             self._label.value = self._LBL_TEMPLATE.format(
-                selected,
+                label_sel,
                 'green'
             )
 
@@ -523,6 +536,17 @@ class FileChooser(VBox, ValueWidget):
     def filter_pattern(self, filter_pattern):
         """Set file name filter pattern."""
         self._filter_pattern = filter_pattern
+        self.refresh()
+
+    @property
+    def top_folder(self):
+        """Get top folder path."""
+        return self._top_folder
+
+    @top_folder.setter
+    def top_folder(self, top_folder):
+        """Set top folder path."""
+        self._top_folder = top_folder
         self.refresh()
 
     @property

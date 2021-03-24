@@ -45,6 +45,9 @@ fc.filter_pattern = '*.txt'
 # Set multiple file filter patterns (uses https://docs.python.org/3/library/fnmatch.html)
 fc.filter_pattern = ['*.jpg', '*.png']
 
+# Restrict navigation to a top folder
+fc.top_folder = '/Users/crahan/'
+
 # Change the title (use '' to hide)
 fc.title = '<b>FileChooser title</b>'
 
@@ -68,6 +71,7 @@ fc.show_only_dirs
 fc.rows
 fc.title
 fc.filter_pattern
+fc.top_folder
 fc.default
 fc.default_path
 fc.default_filename
@@ -100,6 +104,11 @@ fc.selected_filename
 
 
 ## Release notes
+
+### 0.4.3
+
+- Added a `top_folder` property that prevents navigation outside a specific path
+- Specifying a `filter_pattern` now prevents a filename that doesn't match the pattern from being used
 
 ### 0.4.2
 

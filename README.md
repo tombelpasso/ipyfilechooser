@@ -107,8 +107,7 @@ fc.selected_filename
 
 ### 0.4.3
 
-- Added a `top_folder` property that prevents navigation outside a specific path
-- Specifying a `filter_pattern` now prevents a filename that doesn't match the pattern from being used
+- Prevent applying the selected value if the filename doesn't match one of the `filter_pattern` values
 
 ### 0.4.2
 

@@ -248,6 +248,7 @@ class FileChooser(VBox, ValueWidget):
             # Disable the select button if path and filename
             # - equal an existing folder in the current view
             # - equal the already selected values
+            # - don't match the provided filter pattern(s)
             check1 = filename in dircontent_real_names
             check2 = os.path.isdir(os.path.join(path, filename))
             check3 = False

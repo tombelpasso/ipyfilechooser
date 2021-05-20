@@ -1,7 +1,7 @@
 import os
 from ipywidgets import Dropdown, Text, Select, Button, HTML
 from ipywidgets import Layout, GridBox, HBox, VBox, ValueWidget
-from .utils import get_subpaths, get_dir_contents, match_item
+from .utils import get_subpaths, get_dir_contents, match_item, clean_path
 
 
 class FileChooser(VBox, ValueWidget):
@@ -25,7 +25,7 @@ class FileChooser(VBox, ValueWidget):
             top_folder='',
             **kwargs):
         """Initialize FileChooser object."""
-        self._default_path = path.rstrip(os.path.sep)
+        self._default_path = clean_path(path)
         self._default_filename = filename
         self._selected_path = None
         self._selected_filename = None
@@ -37,7 +37,7 @@ class FileChooser(VBox, ValueWidget):
         self._use_dir_icons = use_dir_icons
         self._show_only_dirs = show_only_dirs
         self._filter_pattern = filter_pattern
-        self._top_folder = top_folder.rstrip(os.path.sep)
+        self._top_folder = clean_path(top_folder)
 
         # Widgets
         self._pathlist = Dropdown(
@@ -389,7 +389,7 @@ class FileChooser(VBox, ValueWidget):
         )
 
         if path is not None:
-            self._default_path = path.rstrip(os.path.sep)
+            self._default_path = clean_path(path)
 
         if filename is not None:
             self._default_filename = filename
@@ -479,7 +479,7 @@ class FileChooser(VBox, ValueWidget):
     @default_path.setter
     def default_path(self, path):
         """Set the default_path."""
-        self._default_path = path.rstrip(os.path.sep)
+        self._default_path = clean_path(path)
         self._set_form_values(
             self._default_path,
             self._filename.value

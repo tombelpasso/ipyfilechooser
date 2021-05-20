@@ -5,6 +5,11 @@ import string
 import sys
 
 
+def clean_path(path):
+    """Clean and expand path value."""
+    return os.path.abspath(os.path.expanduser(os.path.normpath(path)))
+
+
 def strip_top_level(path, top_folder=''):
     """Strip top level path from path."""
     to_strip = os.path.dirname(top_folder)
